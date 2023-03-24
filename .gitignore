@@ -1,0 +1,6 @@
+*.class
+target/
+.classpath
+.settings
+/.idea/shelf/
+/.idea/workspace.xml

@@ -1,6 +1,0 @@
-*.class
-target
-.classpath
-.settings
-/shelf/
-/workspace.xml
