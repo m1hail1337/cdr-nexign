@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,7 @@ public class Application {
                 report.getCalls().add(call);
                 report.setMinutesCounter(report.getMinutesCounter() + call.getCallTime());
             }
+            scanner.close();
 
             for (Report report : reports) {
                 createReportFile(report);
@@ -72,22 +74,24 @@ public class Application {
 
         incoming.sort(Comparator.comparing(Call::getStartTime));
         outgoing.sort(Comparator.comparing(Call::getStartTime));
-        double totalCost = report.getTariff().equals("06") ? 100.0 : 0;
+        BigDecimal totalCost = report.getTariff().equals("06") ?
+                new BigDecimal("100.00") : new BigDecimal("0.00");
 
         for (Call call : incoming) {
             writeCall(call, file);
-            totalCost += call.getCost();
+            totalCost = totalCost.add(call.getCost());
         }
         for (Call call : outgoing) {
             writeCall(call, file);
-            totalCost += call.getCost();
+            totalCost = totalCost.add(call.getCost());
         }
 
         file.write(BORDER.getBytes());
+        String totalCostString = String.format("%.2f rubles", totalCost).replace(",", ".");
         file.write(String.format(
-                "|                                           Total Cost: |     %.2f rubles |\n", totalCost)
-                .replace(",", ".").getBytes());
+                "|                                           Total Cost: |%17s |\n", totalCostString).getBytes());
         file.write(BORDER.getBytes());
+        file.close();
     }
 
     private static String buildFormattedDate(String date) {

@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,7 +9,7 @@ public class Call {
     private final String startTime;
     private final String endTime;
     private final int callTime;
-    private final double cost;
+    private final BigDecimal cost;
 
     public Call(String type, String startTime, String endTime, String tariff, int minutesCounter) throws ParseException {
         this.type = type;
@@ -30,10 +31,9 @@ public class Call {
         return endTime;
     }
 
-    public double getCost() {
+    public BigDecimal getCost() {
         return cost;
     }
-
     public String getType() {
         return type;
     }
@@ -46,29 +46,30 @@ public class Call {
     }
 
     // All values rounds to high direction (ex: 3.3 -> 4)
-    private double countCallCost(String tariff, int minutesCounter) {
+    private BigDecimal countCallCost(String tariff, int minutesCounter) {
         switch (tariff) {
             case "06" -> {
                 if (this.callTime + minutesCounter <= 300) {
-                    return 0.0;
+                    return new BigDecimal("0.00");
                 } else if (minutesCounter < 300) {
-                    return this.callTime - (300 - minutesCounter);
+                    return BigDecimal.valueOf(this.callTime - (300 - minutesCounter));
                 } else {
-                    return this.callTime;
+                    return BigDecimal.valueOf(this.callTime);
                 }
             }
             case "03" -> {
-                return this.callTime * 1.5;
+                return BigDecimal.valueOf(this.callTime * 1.5);
             }
             case "11" -> {
                 if (this.type.equals("02")) {
-                    return 0.0;
+                    return new BigDecimal("0.00");
                 } else if (this.callTime + minutesCounter <= 100) {
-                    return this.callTime * 0.5;
+                    return BigDecimal.valueOf(this.callTime * 0.5);
                 } else if (minutesCounter >= 100) {
-                    return this.callTime * 1.5;
+                    return BigDecimal.valueOf(this.callTime * 1.5);
                 } else {
-                    return (100 - minutesCounter) * 0.5 + (this.callTime - (100 - minutesCounter)) * 1.5;
+                    return BigDecimal.valueOf(
+                            (100 - minutesCounter) * 0.5 + (this.callTime - (100 - minutesCounter)) * 1.5);
                 }
             }
             default -> throw new RuntimeException("Unexpected tariff.");
